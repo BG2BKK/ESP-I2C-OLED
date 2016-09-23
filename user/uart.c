@@ -95,7 +95,7 @@ void ICACHE_FLASH_ATTR uart0_init(uart_param_t* param)
     // Clear all interrupt
     WRITE_PERI_REG(UART_INT_CLR(UART0), 0x1ff);
 
-    _xt_isr_attach(ETS_UART_INUM, _uart0_rx_isr);
+    _xt_isr_attach(ETS_UART_INUM, (_xt_isr )_uart0_rx_isr, NULL);
 
     // RX interrupt conditions: FIFO full (1 char)
     SET_PERI_REG_MASK(UART_CONF1(UART0), ((0x01 & UART_RXFIFO_FULL_THRHD) << UART_RXFIFO_FULL_THRHD_S));

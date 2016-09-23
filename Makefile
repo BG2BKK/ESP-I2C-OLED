@@ -15,6 +15,10 @@ TARGET = eagle
 #FLAVOR = release
 FLAVOR = debug
 
+SDK_PATH=/home/huang/workspace/nodemcu/esp8266_exp/esp8266_rtos_sdk
+BIN_PATH=/home/huang/workspace/nodemcu/esp8266_exp/esp8266_rtos_sdk/bin
+
+
 #EXTRA_CCFLAGS += -u
 
 ifndef PDIR # {
@@ -70,13 +74,16 @@ LINKFLAGS_eagle.app.v6 = \
 	-lgcc					\
 	-lhal					\
 	-lphy	\
+	-lcirom\
 	-lpp	\
 	-lnet80211	\
 	-lwpa	\
+	-lwps	\
 	-lmain	\
+	-lcrypto	\
+	-lssl\
 	-lfreertos	\
 	-llwip	\
-	-ludhcp	\
 	$(DEP_LIBS_eagle.app.v6)					\
 	-Wl,--end-group
 
@@ -122,19 +129,19 @@ DDEFINES +=				\
 # Required for each makefile to inherit from the parent
 #
 
-INCLUDES := $(INCLUDES) -I $(PDIR)include
+INCLUDES := $(INCLUDES) -I $(PDIR)include -I $(PDIR)include/espressif
 INCLUDES += -I ./
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
-
-#########################################################################
 #
-#  generate bin file
+##########################################################################
+##
+##  generate bin file
+##
 #
-
-$(BINODIR)/%.bin: $(IMAGEODIR)/%.out
-	@mkdir -p $(BINODIR)
-	$(OBJCOPY) -O binary $< $@
+#$(BINODIR)/%.bin: $(IMAGEODIR)/%.out
+#	@mkdir -p $(BINODIR)
+#	$(OBJCOPY) -O binary $< $@
 
 .PHONY: FORCE
 FORCE:
