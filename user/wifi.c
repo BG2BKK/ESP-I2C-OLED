@@ -8,9 +8,8 @@
 #include "esp_common.h"
 #include "wifi.h"
 
-#define STA_SSID    "hackerspace.sg"
-#define STA_PASSWORD  "xxxxxxxx"
-
+#define STA_SSID "huang"
+#define STA_PASSWORD "sh19901222"
 
 void ICACHE_FLASH_ATTR wifi_init(void)
 {

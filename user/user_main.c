@@ -18,7 +18,8 @@
 void ICACHE_FLASH_ATTR uart_init(void)
 {
     uart_param_t uart_param;
-    uart_param.uart_baud_rate = UART_BAUD_RATE_9600;
+//    uart_param.uart_baud_rate = UART_BAUD_RATE_9600;
+    uart_param.uart_baud_rate = UART_BAUD_RATE_115200;
     uart_param.uart_xfer_bit = UART_XFER_8_BIT;
     uart_param.uart_parity_mode = UART_PARITY_NONE;
     uart_param.uart_stop_bit = UART_1_STOP_BIT;
@@ -56,12 +57,20 @@ LOCAL void ICACHE_FLASH_ATTR shell_task(void *pvParameters)
 
 void ICACHE_FLASH_ATTR user_init(void)
 {
-    int ret;
+    int ret, i;
     dmsg_init();
     uart_init();
     shell_init(uart0_putchar);
+	shell_puts("i2c_init\n");
     i2c_init();
-    wifi_init();
+	shell_puts("oled_init\n");
+	oled_init(1);
+//    wifi_init();
+
+	shell_printf("%d %d\n", oled_get_height(1), oled_get_width(1));
+	for(i=0; i < 20; i++)
+		oled_draw_hline(1, 0, i, 90, 1);
+	oled_refresh(1);
     xTaskCreate(shell_task, "shell", 256, NULL, tskIDLE_PRIORITY + 2, NULL);
 }
 

@@ -35,7 +35,9 @@
  * @{
  */
 //! @brief Panel 0 type, define to OLED_NOT_CONNECTED if not used.
-#define OLED0_PANEL_TYPE OLED_SSD1306_128x32
+//#define OLED0_PANEL_TYPE OLED_SSD1306_128x32
+
+#define OLED0_PANEL_TYPE OLED_SSD1306_128x64
 //! @brief I2C address for panel 0
 #define OLED0_ADDR (0x3c << 1)
 //! @brief If panel 0 has external RESET pin, define this as 1
@@ -50,7 +52,7 @@
 //! @brief Panel 1 type, define to OLED_NOT_CONNECTED if not used.
 #define OLED1_PANEL_TYPE OLED_SSD1306_128x64
 //! @brief I2C address for panel 1
-#define OLED1_ADDR (0x3d << 1)
+#define OLED1_ADDR (0x3c << 1)
 //! @brief If panel 1 has external RESET pin, define this as 1
 #define OLED1_USE_RST 0
 //! @brief GPIO MUX for panel 1 RESET pin
@@ -116,6 +118,8 @@ bool ICACHE_FLASH_ATTR oled_init(uint8_t id)
 {
     oled_i2c_ctx *ctx = NULL;
 
+	shell_puts("0 hello world\n");
+	dmsg_err_puts("0 hello world\n");
     if ((id != 0) && (id != 1))
         goto oled_init_fail;
 
@@ -170,6 +174,7 @@ bool ICACHE_FLASH_ATTR oled_init(uint8_t id)
         ctx->buffer = zalloc(1024); // 128 * 64 / 8
         ctx->width = 128;
         ctx->height = 64;
+        shell_puts("look.\n");
   #elif (OLED1_PANEL_TYPE == OLED_SSD1306_128x32)
         ctx->type = OLED_SSD1306_128x32;
         ctx->buffer = zalloc(512);  // 128 * 32 / 8
@@ -199,11 +204,13 @@ bool ICACHE_FLASH_ATTR oled_init(uint8_t id)
 
     // Panel initialization
     // Try send I2C address check if the panel is connected
-    i2c_start();
+    uint8 flag = i2c_start();
+	shell_printf("start: %d\n", flag);
     if (!i2c_write(ctx->address))
     {
         i2c_stop();
         dmsg_err_puts("OLED I2C bus not responding.");
+        shell_printf("OLED I2C bus not responding: %x\n", ctx->address);
         goto oled_init_fail;
     }
     i2c_stop();
@@ -273,6 +280,7 @@ bool ICACHE_FLASH_ATTR oled_init(uint8_t id)
     oled_refresh(id, true);
 
     _command(ctx->address, 0xaf); // SSD1306_DISPLAYON
+	shell_printf("begin display\n");
 
     return true;
 

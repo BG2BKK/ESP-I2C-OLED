@@ -15,10 +15,6 @@ TARGET = eagle
 #FLAVOR = release
 FLAVOR = debug
 
-SDK_PATH=/home/huang/workspace/nodemcu/esp8266_exp/esp8266_rtos_sdk
-BIN_PATH=/home/huang/workspace/nodemcu/esp8266_exp/esp8266_rtos_sdk/bin
-
-
 #EXTRA_CCFLAGS += -u
 
 ifndef PDIR # {
@@ -26,12 +22,11 @@ GEN_IMAGES= eagle.app.v6.out
 GEN_BINS= eagle.app.v6.bin
 SPECIAL_MKTARGETS=$(APP_MKTARGETS)
 SUBDIRS=    \
-	user
+	user    \
 
 endif # } PDIR
 
-APPDIR = .
-LDDIR = ../ld
+LDDIR = $(SDK_PATH)/ld
 
 CCFLAGS += -Os
 
@@ -49,41 +44,40 @@ ifeq ($(FLAVOR),release)
     TARGET_LDFLAGS += -g -O0
 endif
 
-LD_FILE = $(LDDIR)/eagle.app.v6.ld
-
-ifeq ($(APP), 1)
-	LD_FILE = $(LDDIR)/eagle.app.v6.app1.ld
-endif
-
-ifeq ($(APP), 2)
-	LD_FILE = $(LDDIR)/eagle.app.v6.app2.ld
-endif
-
 COMPONENTS_eagle.app.v6 = \
-	user/libuser.a
-		
-	
+	user/libuser.a  
+
 LINKFLAGS_eagle.app.v6 = \
-	-L../lib        \
+	-L$(SDK_PATH)/lib        \
+	-Wl,--gc-sections   \
 	-nostdlib	\
     -T$(LD_FILE)   \
 	-Wl,--no-check-sections	\
     -u call_user_start	\
 	-Wl,-static						\
 	-Wl,--start-group					\
+	-lcirom \
+	-lcrypto	\
+	-lespconn	\
+	-lespnow	\
+	-lfreertos	\
 	-lgcc					\
 	-lhal					\
-	-lphy	\
-	-lcirom\
-	-lpp	\
-	-lnet80211	\
-	-lwpa	\
-	-lwps	\
-	-lmain	\
-	-lcrypto	\
-	-lssl\
-	-lfreertos	\
+	-ljson	\
 	-llwip	\
+	-lmain	\
+	-lmesh	\
+	-lmirom	\
+	-lnet80211	\
+	-lnopoll	\
+	-lphy	\
+	-lpp	\
+	-lpwm	\
+	-lsmartconfig	\
+	-lspiffs	\
+	-lssl	\
+	-lwpa	\
+	-lwps		\
 	$(DEP_LIBS_eagle.app.v6)					\
 	-Wl,--end-group
 
@@ -105,8 +99,7 @@ DEPENDS_eagle.app.v6 = \
 #	-DTXRX_TXBUF_DEBUG
 #	-DTXRX_RXBUF_DEBUG
 #	-DWLAN_CONFIG_CCX
-CONFIGURATION_DEFINES =	-D__ets__ \
-			-DICACHE_FLASH
+CONFIGURATION_DEFINES =	-DICACHE_FLASH
 
 DEFINES +=				\
 	$(UNIVERSAL_TARGET_DEFINES)	\
@@ -129,19 +122,8 @@ DDEFINES +=				\
 # Required for each makefile to inherit from the parent
 #
 
-INCLUDES := $(INCLUDES) -I $(PDIR)include -I $(PDIR)include/espressif
-INCLUDES += -I ./
-PDIR := ../$(PDIR)
-sinclude $(PDIR)Makefile
-#
-##########################################################################
-##
-##  generate bin file
-##
-#
-#$(BINODIR)/%.bin: $(IMAGEODIR)/%.out
-#	@mkdir -p $(BINODIR)
-#	$(OBJCOPY) -O binary $< $@
+INCLUDES := $(INCLUDES) -I $(PDIR)include
+sinclude $(SDK_PATH)/Makefile
 
 .PHONY: FORCE
 FORCE:
